@@ -40,4 +40,17 @@ for scratchCard in scratch_cards:
 
     total_points += card_total
 
+# Part 1 = 21558
 print(total_points)
+
+all_scratch_cards = scratch_cards.copy()
+
+# print(scratch_cards)
+
+for scratchCard in all_scratch_cards:
+    if scratchCard.get_winners() > 0:
+        for i in range(1, scratchCard.get_winners() + 1):
+            all_scratch_cards.append(scratch_cards[(scratchCard.ID + i) - 1])
+
+# Part 2 = 10425665
+print(len(all_scratch_cards))
