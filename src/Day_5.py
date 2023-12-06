@@ -29,13 +29,17 @@ seeds = []
 
 lines = read_file(5, str, False)
 
+
 current_map = 0
 
 for line in lines:
     if 'seeds:' in line:
         _, values = line.split(': ')
-        seeds = values.split(' ')
-        seeds = [int(i) for i in seeds]
+        seed_ranges = values.split(' ')
+        seed_ranges = [int(i) for i in seed_ranges]
+        for seed_range in range(0, len(seed_ranges), 2):
+            for i in range(seed_ranges[seed_range], seed_ranges[seed_range + 1] + seed_ranges[seed_range]):
+                seeds.append(i)
         continue
     if 'seed-to-soil map:' in line:
         current_map = 1
@@ -103,8 +107,8 @@ for seed in seeds:
 
     mapped_values.append([seed, soil, fertilizer, water, light, temperature, humidity, location])
 
-for value in mapped_values:
-    print(f'Seed {value[0]}, soil {value[1]}, fertilizer {value[2]}, water {value[3]}, light {value[4]}, temperature {value[5]}, humidity {value[6]}, location {value[7]}')
+# for value in mapped_values:
+#     print(f'Seed {value[0]}, soil {value[1]}, fertilizer {value[2]}, water {value[3]}, light {value[4]}, temperature {value[5]}, humidity {value[6]}, location {value[7]}')
 
 lowest_location = math.inf
 
