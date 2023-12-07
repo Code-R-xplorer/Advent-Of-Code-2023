@@ -1,6 +1,9 @@
 import math
+from itertools import repeat
 
 from utils import read_file
+from multiprocessing import Pool, Manager
+from Day_5_Functions import process_seed_range
 
 
 class Map:
@@ -27,7 +30,7 @@ humidity_to_location_maps = []
 
 seeds = []
 
-lines = read_file(5, str, False)
+lines = read_file(5, str, True)
 
 current_map = 0
 
@@ -103,8 +106,6 @@ for seed in seeds:
 
     mapped_values.append([seed, soil, fertilizer, water, light, temperature, humidity, location])
 
-for value in mapped_values:
-    print(f'Seed {value[0]}, soil {value[1]}, fertilizer {value[2]}, water {value[3]}, light {value[4]}, temperature {value[5]}, humidity {value[6]}, location {value[7]}')
 
 lowest_location = math.inf
 
@@ -112,6 +113,113 @@ for mapped_value in mapped_values:
     if mapped_value[7] < lowest_location:
         lowest_location = mapped_value[7]
 
+# Part 1 = 107430936
 print(lowest_location)
 
+# Part 2
+
+# I would not recommend running my part 2 solution as it takes a very long time and is a very brute force method
+
+if __name__ == '__main__':
+    exit()
+    # _lowest_values = []
+
+    seed_to_soil_maps = []
+    soil_to_fertilizer_maps = []
+    fertilizer_to_water_maps = []
+    water_to_light_maps = []
+    light_to_temperature_maps = []
+    temperature_to_humidity_maps = []
+    humidity_to_location_maps = []
+
+    lines = read_file(5, str, False)
+
+    current_map = 0
+
+    for line in lines:
+        if 'seeds:' in line:
+            continue
+        if 'seed-to-soil map:' in line:
+            current_map = 1
+            continue
+        if 'soil-to-fertilizer map:' in line:
+            current_map = 2
+            continue
+        if 'fertilizer-to-water map:' in line:
+            current_map = 3
+            continue
+        if 'water-to-light map:' in line:
+            current_map = 4
+            continue
+        if 'light-to-temperature map:' in line:
+            current_map = 5
+            continue
+        if 'temperature-to-humidity map:' in line:
+            current_map = 6
+            continue
+        if 'humidity-to-location map:' in line:
+            current_map = 7
+            continue
+        if line != '':
+            values = line.split(' ')
+            values = [int(i) for i in values]
+            if current_map == 1:
+                seed_to_soil_maps.append(Map(values[1], values[0], values[2]))
+            if current_map == 2:
+                soil_to_fertilizer_maps.append(Map(values[1], values[0], values[2]))
+            if current_map == 3:
+                fertilizer_to_water_maps.append(Map(values[1], values[0], values[2]))
+            if current_map == 4:
+                water_to_light_maps.append(Map(values[1], values[0], values[2]))
+            if current_map == 5:
+                light_to_temperature_maps.append(Map(values[1], values[0], values[2]))
+            if current_map == 6:
+                temperature_to_humidity_maps.append(Map(values[1], values[0], values[2]))
+            if current_map == 7:
+                humidity_to_location_maps.append(Map(values[1], values[0], values[2]))
+
+    v = lines[0].split(': ')[1]
+    seed_ranges = v.split(' ')
+    seed_ranges = [int(x) for x in seed_ranges]
+    seed_ranges = [(seed_ranges[2 * i], seed_ranges[2 * i + 1]) for i in range(len(seed_ranges) // 2)]
+
+    seed_ranges_reduced = []
+
+    for seed_range in seed_ranges:
+        original_number = seed_range[1]
+
+        # Number of splits
+        num_splits = 1000
+
+        # Calculate the size of each split
+        split_size = original_number // num_splits
+
+        # Initialize a list to store the splits
+        splits = []
+
+        # Create the splits
+        for i in range(num_splits - 1):
+            splits.append(split_size)
+        original_number -= (num_splits - 1) * split_size
+        splits.append(original_number)
+
+        new_start_range = seed_range[0]
+        for count, split in enumerate(splits):
+            seed_ranges_reduced.append((new_start_range, split))
+            new_start_range += split
+    # print(len(seed_ranges_reduced))
+    manager = Manager()
+    _lowest_values = manager.list()
+
+    with Pool() as pool:
+
+        pool.starmap(process_seed_range,
+                     zip(seed_ranges_reduced, repeat([seed_to_soil_maps, soil_to_fertilizer_maps, fertilizer_to_water_maps,
+                                              water_to_light_maps, light_to_temperature_maps,
+                                              temperature_to_humidity_maps, humidity_to_location_maps]),
+                         repeat(_lowest_values)
+                         )
+                     )
+    # Part 2 = 23738616
+    print(min(_lowest_values))
 
