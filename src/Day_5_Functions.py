@@ -28,5 +28,7 @@ def process_seed_range(seed_range, maps, lowest_values):
         _location = map_helper(maps[6], _humidity)
         if _location < _lowest:
             _lowest = _location
+    print(seed_range)
+    print(_lowest)
     lowest_values.append(_lowest)
 
